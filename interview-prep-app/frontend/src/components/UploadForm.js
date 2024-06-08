@@ -7,6 +7,7 @@ const UploadForm = () => {
     const [questions, setQuestions] = useState([]);
 
     const handleFileChange = (e) => {
+        console.log('called')
         setFile(e.target.files[0]);
     };
 
