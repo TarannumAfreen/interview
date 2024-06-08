@@ -1,10 +1,21 @@
+// backend/routes/resumeRoutes.js
 const express = require('express');
-const multer = require('multer');
-const { parseResume } = require('../controllers/resumeController');
-
 const router = express.Router();
-const upload = multer({ dest: 'uploads/' });
+const multer = require('multer');
+const resumeController = require('../controllers/resumeController');
 
-router.post('/upload', upload.single('resume'), parseResume);
+const storage = multer.diskStorage({
+    destination: function(req, file, cb) {
+        cb(null, './uploads');
+    },
+    filename: function(req, file, cb) {
+        cb(null, file.originalname);
+    }
+});
+
+const upload = multer({ storage: storage });
+
+// POST endpoint for resume upload
+router.post('/upload', upload.single('resume'), resumeController.uploadResume);
 
 module.exports = router;

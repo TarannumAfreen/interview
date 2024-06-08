@@ -1,77 +1,51 @@
+// frontend/src/components/UploadForm.js
 import React, { useState } from 'react';
+import axios from 'axios';
 
 const UploadForm = () => {
-  const [file, setFile] = useState(null);
+    const [file, setFile] = useState(null);
+    const [questions, setQuestions] = useState([]);
 
-  const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
-  };
+    const handleFileChange = (e) => {
+        setFile(e.target.files[0]);
+    };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const formData = new FormData();
-    formData.append('resume', file);
-    
-    try {
-      const response = await fetch('/api/resumes/upload', {
-        method: 'POST',
-        body: formData,
-      });
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const formData = new FormData();
+        formData.append('resume', file);
 
-      if (response.ok) {
-        console.log('Resume uploaded successfully!');
-      } else {
-        console.error('Failed to upload resume');
-      }
-    } catch (error) {
-      console.error('Error uploading resume:', error);
-    }
-  };
+        try {
+            const res = await axios.post('http://localhost:3001/api/upload', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+            setQuestions(res.data.questions);
+        } catch (err) {
+            console.error('Error uploading resume:', err);
+        }
+    };
 
-  return (
-    <div className="upload-form" style={styles.uploadForm}>
-      <h2 style={styles.heading}>Upload Resume</h2>
-      <form onSubmit={handleSubmit} style={styles.form}>
-        <input type="file" onChange={handleFileChange} style={styles.fileInput} />
-        <button type="submit" style={styles.uploadButton}>Upload</button>
-      </form>
-    </div>
-  );
-};
-
-const styles = {
-  uploadForm: {
-    maxWidth: '400px',
-    margin: '20px auto',
-    padding: '20px',
-    backgroundColor: '#ffffff',
-    border: '1px solid #cccccc',
-    borderRadius: '8px',
-    boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)',
-  },
-  heading: {
-    marginBottom: '10px',
-  },
-  form: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-  },
-  fileInput: {
-    marginBottom: '10px',
-  },
-  uploadButton: {
-    padding: '10px 20px',
-    backgroundColor: '#007bff',
-    color: '#ffffff',
-    border: 'none',
-    borderRadius: '4px',
-    cursor: 'pointer',
-    transition: 'background-color 0.3s ease',
-  },
-  uploadButtonHover: {
-    backgroundColor: '#0056b3',
-  },
+    return (
+        <div>
+            <h2>Upload Your Resume</h2>
+            <form onSubmit={handleSubmit}>
+                <input type="file" onChange={handleFileChange} />
+                <button type="submit">Upload</button>
+            </form>
+            {questions.length > 0 && (
+                <div>
+                    <h3>Interview Questions</h3>
+                    <ul>
+                        {questions.map((question, index) => (
+                            <li key={index}>{question}</li>
+                        ))}
+                    </ul>
+                </div>
+            )}
+        </div>
+    );
 };
 
 export default UploadForm;
